@@ -21,6 +21,7 @@ func ConnectRedis(addr string) {
 func PutInQueue(url string) {
 	err := client.Lpush(URL_QUEUE, []byte(url))
 	if err != nil {
+		fmt.Printf("PutInQueue Err:%v\n", err)
 		panic(err)
 	}
 }
@@ -46,7 +47,7 @@ func AddToSet(url string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(ret)
+	fmt.Printf("AddToSet: %v\n", ret)
 }
 
 func IsVisit(url string) bool {

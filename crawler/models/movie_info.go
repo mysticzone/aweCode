@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"github.com/beego/beego/v2/client/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"regexp"
@@ -35,6 +36,7 @@ func init() {
 }
 
 func AddMovie(movie_info *MovieInfo) (int64, error) {
+	movie_info.Id = 0
 	id, err := db.Insert(movie_info)
 	return id, err
 }
@@ -43,9 +45,12 @@ func GetMovieDirector(movieHtml string) string {
 	if movieHtml == "" {
 		return ""
 	}
-
 	reg := regexp.MustCompile(`<a.*?rel="v:directedBy">(.*)</a>`)
 	result := reg.FindAllStringSubmatch(movieHtml, -1)
+	fmt.Println("GetMovieDirector: ", result)
+	if len(result) == 0 {
+		return "director"
+	}
 	return string(result[0][1])
 }
 
@@ -55,6 +60,13 @@ func GetMovieName(movieHtml string) string {
 	}
 	reg := regexp.MustCompile(`<span.*?property="v:itemreviewed">(.*)</span>`)
 	result := reg.FindAllStringSubmatch(movieHtml, -1)
+	//fmt.Println("GetMovieName: ", result)
+	//fmt.Println("GetMovieName: ", result[0])
+	//fmt.Println("GetMovieName: ", result[0][1])
+	fmt.Println("GetMovieName: ", result)
+	if len(result) == 0 {
+		return ""
+	}
 	return string(result[0][1])
 }
 
@@ -66,6 +78,7 @@ func GetMovieCharacters(movieHtml string) string {
 	for _, v := range result {
 		mainCharacter += v[1] + "/"
 	}
+	fmt.Println("GetMovieCharacters: ", mainCharacter)
 	return strings.Trim(mainCharacter, "/")
 }
 
@@ -74,6 +87,7 @@ func GetMovieGrade(movieHtml string) string {
 	reg := regexp.MustCompile(`<strong.*?property="v:average">(.*?)</strong>`)
 	result := reg.FindAllStringSubmatch(movieHtml, -1)
 	//fmt.Println(result)
+	fmt.Println("GetMovieGrade: ", result)
 	return string(result[0][1])
 }
 
@@ -85,6 +99,7 @@ func GetMovieGenre(movieHtml string) string {
 	for _, v := range result {
 		genre += v[1] + "/"
 	}
+	fmt.Println("GetMovieGenre: ", genre)
 	return strings.Trim(genre, "/")
 }
 
@@ -92,6 +107,10 @@ func GetMovieGenre(movieHtml string) string {
 func GetMovieOnTime(movieHtml string) string {
 	reg := regexp.MustCompile(`<span.*?property="v:runtime".*?>(.*?)</span>`)
 	result := reg.FindAllStringSubmatch(movieHtml, -1)
+	fmt.Println("GetMovieOnTime: ", result)
+	if len(result) == 0 {
+		return "999"
+	}
 	return string(result[0][1])
 }
 
@@ -99,6 +118,10 @@ func GetMovieOnTime(movieHtml string) string {
 func GetMovieRunningTime(movieHtml string) string {
 	reg := regexp.MustCompile(`<span.*?property="v:initialReleaseDate".*?>(.*?)</span>`)
 	result := reg.FindAllStringSubmatch(movieHtml, -1)
+	fmt.Println("GetMovieRunningTime: ", result)
+	if len(result) == 0 {
+		return "2021-06-17"
+	}
 	return string(result[0][1])
 }
 
@@ -115,5 +138,6 @@ func GetMovieUrls(movieHtml string) []string {
 	for _, v := range results {
 		movieUrls = append(movieUrls, v[1])
 	}
+	fmt.Println("GetMovieUrls: ", movieUrls)
 	return movieUrls
 }

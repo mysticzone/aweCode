@@ -22,21 +22,25 @@ func (c *CrawlMovieController) CrawlMovie() {
 
 	for {
 		length := models.GetQueueLength()
+		fmt.Println("GetQeueueLength: ", length)
 		if length == 0 {
 			break
 		}
 		sUrl = models.PopFromQueue()
+		fmt.Println("sUrl: ", sUrl)
 		if models.IsVisit(sUrl) {
 			continue
 		}
-
+		//resp := httplib.Get(sUrl)
 		resp := httplib.Get(sUrl)
 		sMovieHtml, err := resp.String()
 		if err != nil {
+			fmt.Printf("CrawlMovie Error: %v\n", err)
 			panic(err)
 		}
 
 		movieInfo.Movie_name = models.GetMovieName(sMovieHtml)
+		fmt.Println("Movie_name: ", movieInfo.Movie_name)
 		if movieInfo.Movie_name != "" {
 			movieInfo.Movie_director = models.GetMovieDirector(sMovieHtml)
 			movieInfo.Movie_main_character = fmt.Sprintf("%v", models.GetMovieCharacters(sMovieHtml))
@@ -45,12 +49,15 @@ func (c *CrawlMovieController) CrawlMovie() {
 			movieInfo.Movie_type = models.GetMovieGenre(sMovieHtml)
 			movieInfo.Movie_country = models.GetMovieRunningTime(sMovieHtml)
 			movieInfo.Movie_on_time = "2021-06-12"
-
+			fmt.Println("===================================")
+			fmt.Println("MovieInfo: ", movieInfo)
+			fmt.Println("===================================")
 			m_id, err := models.AddMovie(&movieInfo)
-			fmt.Println(m_id, err)
+			fmt.Printf("MovieID: %v\t Err:%v\n", m_id, err)
 		}
 
 		urls := models.GetMovieUrls(sMovieHtml)
+		fmt.Printf("sMovieHtml Urls: %v\n", urls)
 		for _, url := range urls {
 			models.PutInQueue(url)
 			c.Ctx.WriteString("<br>" + url + "</br>")
@@ -58,20 +65,6 @@ func (c *CrawlMovieController) CrawlMovie() {
 
 		models.AddToSet(sUrl)
 		time.Sleep(time.Second)
-
 	}
 
-	//movieId, err := models.AddMovie(&movieInfo)
-	//fmt.Printf("MovieID:%v\tErr:%v\n", movieId, err)
-	//
-	//c.Ctx.WriteString(models.GetMovieDirector(sMovieHtml) + "|")
-	//c.Ctx.WriteString(models.GetMovieName(sMovieHtml) + "|")
-	//c.Ctx.WriteString(fmt.Sprintf("%v", models.GetMovieCharacters(sMovieHtml)) + "|")
-	//c.Ctx.WriteString(models.GetMovieGrade(sMovieHtml) + "|")
-	//c.Ctx.WriteString(models.GetMovieGenre(sMovieHtml) + "|")
-	//c.Ctx.WriteString(models.GetMovieOnTime(sMovieHtml) + "|")
-	//c.Ctx.WriteString(models.GetMovieRunningTime(sMovieHtml) + "|")
-
-	//
-	//fmt.Printf("Urls:%v\n", urls)
 }
