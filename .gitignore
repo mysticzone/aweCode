@@ -1,0 +1,12 @@
+*.sw?
+*.lock
+.DB_STORE
+.DS_Store
+.bashrc
+*.log
+dump.rdb
+.idea
+build
+tests
+logs
+github.com
