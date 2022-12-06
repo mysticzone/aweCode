@@ -1,2 +1,3 @@
 # awesomeProject
-Go Examples
+
+Code Examples
